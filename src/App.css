@@ -36,3 +36,33 @@
     transform: rotate(360deg);
   }
 }
+
+
+.MuiGrid-item{
+  height: 40px;
+  padding-left: 0.5% !important;
+  padding-top: 0.5% !important;
+}
+
+.MuiPaper-root{
+  height: 90%;
+}
+
+.visited{
+  background-color: red !important;
+}
+
+.unvisited{
+  background-color: blue !important;
+}
+
+.MuiGrid-root .MuiGrid-container{
+  margin-top: 0px;
+}
+
+.parentGrid{
+  margin-left: 1% !important;
+  margin-right: 1% !important;
+  width: 99% !important;
+  margin-top: 0px !important;
+}
