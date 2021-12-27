@@ -15,13 +15,13 @@ class RowComponent extends React.Component<IRowComponentProps> {
     render() {
         console.log("render row "+this.props.y);
         return (
-            <Grid container spacing={2} columns={{ xs: 30, sm: 30, md: 30 }}>
+            <div className="grid-parent">
               {
                 this.props.row.map((cell, x) =>
                     <CellComponent key={x} x={x} y={this.props.y} cell={cell} />
                 )
               }
-            </Grid>
+            </div>
           );
     }
 }

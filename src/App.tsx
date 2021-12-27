@@ -9,10 +9,11 @@ import Heapify from "heapify";
 import CellComponent from './CellComponent';
 import RowComponent from './RowComponent';
 
-interface coor{
+interface ICoor{
   x: number,
   y: number
 }
+
 function App() {
   const height =20;
   const width =30;
@@ -155,10 +156,8 @@ function App() {
 
 
     return(
-      <div>
-        <Grid className='parentGrid' container spacing={2} columns={{ xs: 30, sm: 30, md: 30 }}>
+      <div className='grid-container'>
           {gen_row()}
-        </Grid>
         <Button onClick={dijkstra}>Dijkstra</Button>
         {needupdate}
       </div>
