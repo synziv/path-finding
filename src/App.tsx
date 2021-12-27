@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import './App.css';
 import Grid from '@mui/material/Grid';
 import { Box, Button, ListItem, Paper } from '@mui/material';
@@ -6,6 +6,8 @@ import { useEffect } from 'react';
 import { useState } from 'react';
 import internal from 'stream';
 import Heapify from "heapify";
+import CellComponent from './CellComponent';
+import RowComponent from './RowComponent';
 
 interface coor{
   x: number,
@@ -17,6 +19,7 @@ function App() {
   //const {Heapify} = require('heapify');
   //const matrix:number[][] = [];
   const [needupdate, setNeedUpdate] = useState(0);
+  const [rowUpdate, setRowUpdate] = useState(0);
   const [ready, setReady] = useState(false);
   const [matrix, setMatrix] = useState<number[][]>([]);
   console.log("init");
@@ -49,6 +52,7 @@ function App() {
  const updateMatrix=async (x:number, y:number)=>{
     matrix[y][x] =1;
     setNeedUpdate(needupdate => needupdate +1);
+    setRowUpdate(y);
     await new Promise(r => setTimeout(r, 0));
  }
   
@@ -68,7 +72,9 @@ function App() {
         const v_x = v % width;
         const v_y = Math.floor(v / width);
         
+        console.time('updateMatrix');
         await updateMatrix(v_x, v_y);
+        console.timeEnd('updateMatrix');
         
         let distance_n;
 
@@ -134,29 +140,16 @@ function App() {
     
   }
 
-
   const gen_row = () => {
     if(ready){
-      console.log("gen_row");
-      console.log(matrix);
+      //console.log("gen_row");
+      //console.log(matrix);
+      console.log("GEN*******************");
       return (
-        matrix.map((row, x) => {
-          return (
-            <Grid key={x} container spacing={2} columns={{ xs: 30, sm: 30, md: 30 }}>
-              {
-                row.map((cell, y) => (
-                    <Grid key={coorToFlat(x, y, width)} item xs={1}>
-                      <Paper elevation={3} className={cell == 0 ?'unvisited':'visited'}>
-                        <span>0</span>
-                      </Paper>
-                    </Grid>
-                ))
-              }
-            </Grid>
-          );
-        }
-        )
-      )
+        matrix.map((row, y) => 
+          <RowComponent key={y} y={y} row={row} toUpdate={rowUpdate}/>
+        
+      ))
     }
   }
 
@@ -164,7 +157,7 @@ function App() {
     return(
       <div>
         <Grid className='parentGrid' container spacing={2} columns={{ xs: 30, sm: 30, md: 30 }}>
-        {gen_row()}
+          {gen_row()}
         </Grid>
         <Button onClick={dijkstra}>Dijkstra</Button>
         {needupdate}
