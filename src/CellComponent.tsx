@@ -21,6 +21,7 @@ class CellComponent extends React.Component<ICellComponentProps> {
         else if(v == 1) return 'visited';
         else if(v == 2) return 'revisited';
         else if(v == 3) return 'start';
+        else if(v == 4) return 'path';
     }
     render() {
         console.log("render"+{x: this.props.x, y: this.props.y});

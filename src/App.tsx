@@ -56,6 +56,10 @@ function App() {
     return x + width * y;
   }
 
+  const flatToCoor=(flat: number):ICoor=>{
+    return {x: flat % width, y: Math.floor(flat / width)}
+  }
+
 
  const initDijkstra =(distances: Uint32Array, Q:Heapify, parents:Uint32Array)=>{
   distances.fill(4294967295);
@@ -67,22 +71,27 @@ function App() {
 
  }
 
- const updateMatrix=async (x:number, y:number)=>{
+ const updateMatrix=async (x:number, y:number, value:number)=>{
     //matrix[y][x] =1;
     
-    updateRenderMatrixCell({x: x, y: y}, 1);
+    updateRenderMatrixCell({x: x, y: y}, value);
     //setRowUpdate(y);
     setNeedUpdate(needupdate => needupdate +1);
     await new Promise(r => setTimeout(r, 0));
  }
+
+
  const getIdFromCoor=(coor: ICoor)=>{
    return (coor.y*width + coor.x);
  }
+
+
  const updateRenderMatrixCell=(coor:ICoor, newValue: number)=>{
   matrix[coor.y][coor.x] = newValue;
   render_matrix[getIdFromCoor(coor)] = <CellComponent key={coorToFlat(coor.x, coor.y, width)} x={coor.x} y={coor.y} cell={matrix[coor.y][coor.x]} child_onClick={cell_onClick} needUpdate={needupdate}/>
        
  }
+
  const cell_onClick=(new_x:number, new_y:number)=>{
   updateRenderMatrixCell({x: start.current.x, y: start.current.y}, 0);
   
@@ -91,7 +100,14 @@ function App() {
 
   setNeedUpdate(needupdate => needupdate +1);
  }
-  
+
+
+  const findShortestPath=async ()=>{
+    const chemins = await dijkstra();
+    print_path(chemins);
+  }
+
+
   const dijkstra=async ()=>{
     //console.log("coucou");
     const Q = new Heapify();
@@ -105,19 +121,17 @@ function App() {
       const distance_c = distances[v];
       
       if(distance_c != Infinity){
-        const v_x = v % width;
-        const v_y = Math.floor(v / width);
-        
+        const v_coor = flatToCoor(v);
         console.time('updateMatrix');
-        await updateMatrix(v_x, v_y);
+        await updateMatrix(v_coor.x, v_coor.y, 1);
         console.timeEnd('updateMatrix');
         
         let distance_n;
 
         //voisin droite
-        if(v_x <width-1){
+        if(v_coor.x <width-1){
           
-          const coorVoisin = coorToFlat(v_x+1, v_y, width);
+          const coorVoisin = coorToFlat(v_coor.x+1, v_coor.y, width);
           distance_n = distances[coorVoisin];
           if(distance_c+1 < distance_n){
             distances[coorVoisin] = distance_c+1;
@@ -126,9 +140,9 @@ function App() {
           }
         }
         //voisin gauche
-        if(v_x >0){
+        if(v_coor.x >0){
           //console.log("voisin G");
-          const coorVoisin = coorToFlat(v_x-1, v_y, width);
+          const coorVoisin = coorToFlat(v_coor.x-1, v_coor.y, width);
           distance_n = distances[coorVoisin];
           //console.log("=>"+(v_x-1)+", "+v_y+": "+distance_n);
           if(distance_c+1 < distance_n){
@@ -139,9 +153,9 @@ function App() {
           }
         }
         //voisin bas
-        if(v_y > 0){
+        if(v_coor.y > 0){
           //console.log("voisin B");
-          const coorVoisin = coorToFlat(v_x, v_y-1, width);
+          const coorVoisin = coorToFlat(v_coor.x, v_coor.y-1, width);
           distance_n = distances[coorVoisin];
           //console.log("=>"+v_x+", "+(v_y-1)+": "+distance_n);
           if(distance_c+1 < distance_n){
@@ -152,9 +166,9 @@ function App() {
           }
         }
         //voisin haut
-        if(v_y <width-1){
+        if(v_coor.y <width-1){
           //console.log("voisin H");
-          const coorVoisin = coorToFlat(v_x, v_y+1, width);
+          const coorVoisin = coorToFlat(v_coor.x, v_coor.y+1, width);
           distance_n = distances[coorVoisin];
           //console.log("=>"+v_x+", "+(v_y+1)+": "+distance_n);
           if(distance_c+1 < distance_n){
@@ -170,10 +184,23 @@ function App() {
       //console.timeEnd('Function #1');
       
     }
-   
-    
+    return parents;
+  }
 
-    
+  const print_path=async (chemins: Uint32Array)=>{
+    let current:ICoor = {x: 25, y:15};
+    let clear_path = [];
+    current = flatToCoor(chemins[coorToFlat(current.x, current.y, width)]);
+    while(!(current.x == start.current.x && current.y ==start.current.y )){
+      console.log({x: current.x, y: current.y});
+      clear_path.unshift(current);
+      current = flatToCoor(chemins[coorToFlat(current.x, current.y, width)]);
+    }
+    clear_path.unshift(start.current);
+
+    for(let i=0; i< clear_path.length; i++){
+      await updateMatrix(clear_path[i].x, clear_path[i].y, 4);
+    }
   }
 
   
@@ -197,7 +224,7 @@ function App() {
           {render_matrix}
         </div>
         {needupdate}
-        <Button onClick={dijkstra}>Dijkstra</Button>
+        <Button onClick={findShortestPath}>Dijkstra</Button>
       </div>
 
       

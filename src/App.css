@@ -78,6 +78,10 @@
   background-color: black !important;
 }
 
+.path{
+  background-color: #FFD639 !important;
+}
+
 .MuiGrid-root .MuiGrid-container{
   margin-top: 0px;
 }
