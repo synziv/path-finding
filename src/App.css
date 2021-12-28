@@ -48,10 +48,6 @@
   height: 90%;
 }
 
-.visited{
-  background-color: #38618C !important;
-  animation: background-fade 0.2s;
-}
 
 @keyframes background-fade {
   0% {
@@ -65,12 +61,21 @@
   }
 }
 
+.visited{
+  background-color: #38618C !important;
+  animation: background-fade 0.2s;
+}
+
 .revisited{
   background-color: #38618C !important;
 }
 
 .unvisited{
   background-color: #FFFFFF !important;
+}
+
+.start{
+  background-color: black !important;
 }
 
 .MuiGrid-root .MuiGrid-container{

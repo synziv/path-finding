@@ -5,7 +5,8 @@ import CellComponent from "./CellComponent";
 interface IRowComponentProps{ 
     row:number[],
     y:number, 
-    toUpdate:number
+    toUpdate:number,
+    child_onClick: Function
 };
 
 class RowComponent extends React.Component<IRowComponentProps> {
@@ -18,7 +19,7 @@ class RowComponent extends React.Component<IRowComponentProps> {
             <div className="grid-parent">
               {
                 this.props.row.map((cell, x) =>
-                    <CellComponent key={x} x={x} y={this.props.y} cell={cell} />
+                    <CellComponent key={x} x={x} y={this.props.y} cell={cell} child_onClick={this.props.child_onClick}/>
                 )
               }
             </div>

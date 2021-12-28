@@ -23,6 +23,7 @@ function App() {
   const [rowUpdate, setRowUpdate] = useState(0);
   const [ready, setReady] = useState(false);
   const [matrix, setMatrix] = useState<number[][]>([]);
+  const [start, setStart] = useState<ICoor>({x:0, y:0});
   console.log("init");
 
   useEffect(() => {
@@ -45,27 +46,39 @@ function App() {
  const initDijkstra =(distances: Uint32Array, Q:Heapify, parents:Uint32Array)=>{
   distances.fill(4294967295);
   parents.fill(-1);
-  Q.push(coorToFlat(0,0,30),1);
-  distances[0] =0;
+
+  const startFlat = coorToFlat(start.x, start.y,width);
+  Q.push(startFlat,1);
+  distances[startFlat] =0;
 
  }
 
  const updateMatrix=async (x:number, y:number)=>{
     matrix[y][x] =1;
     setNeedUpdate(needupdate => needupdate +1);
-    setRowUpdate(y);
+    //setRowUpdate(y);
     await new Promise(r => setTimeout(r, 0));
+ }
+
+ const cell_onClick=(new_x:number, new_y:number)=>{
+  console.log("clicked");
+  console.log({x: new_x, y: new_y});
+  matrix[start.y][start.x] = 0;
+  //setRowUpdate(start.y);
+  matrix[new_y][new_x] =3;
+  //setRowUpdate(new_y);
+  setStart({x: new_x, y:new_y});
  }
   
   const dijkstra=async ()=>{
-    console.log("coucou");
+    //console.log("coucou");
     const Q = new Heapify();
     let distances = new Uint32Array(30*20);
     let parents = new Uint32Array(30*20);
     initDijkstra(distances, Q, parents);
 
     while(Q.size !=0){
-      console.time('Function #1');
+      //console.time('Function #1');
       const v = Q.pop();
       const distance_c = distances[v];
       
@@ -132,7 +145,7 @@ function App() {
 
         //console.log("****************************");
       }
-      console.timeEnd('Function #1');
+      //console.timeEnd('Function #1');
       
     }
    
@@ -140,6 +153,11 @@ function App() {
 
     
   }
+  const arrTest: JSX.Element[]=[
+    <Button onClick={dijkstra}>Dijkstra1</Button>,
+    <Button onClick={dijkstra}>Dijkstra2</Button>,
+    <Button onClick={dijkstra}>Dijkstra3</Button>
+  ]
 
   const gen_row = () => {
     if(ready){
@@ -147,10 +165,17 @@ function App() {
       //console.log(matrix);
       console.log("GEN*******************");
       return (
-        matrix.map((row, y) => 
-          <RowComponent key={y} y={y} row={row} toUpdate={rowUpdate}/>
-        
-      ))
+        matrix.map((row, y) =>
+          <div className="grid-parent">
+            {
+              row.map((cell, x) =>
+                <CellComponent key={x} x={x} y={y} cell={cell} child_onClick={cell_onClick} />
+              )
+            }
+          </div>
+
+
+        ))
     }
   }
 
