@@ -22,13 +22,13 @@ class CellComponent extends React.Component<ICellComponentProps> {
         else if(v == 2) return 'revisited';
         else if(v == 3) return 'start';
         else if(v == 4) return 'path';
+        else if(v == 5) return 'finish';
     }
     render() {
         console.log("render"+{x: this.props.x, y: this.props.y});
         return ( 
                 <Paper onClick={()=>this.props.child_onClick(this.props.x, this.props.y)} elevation={3} className={this.getClassName(this.props.cell)}>
                     <span>0</span>
-                    
                 </Paper>
         );
     }

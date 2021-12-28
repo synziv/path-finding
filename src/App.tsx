@@ -27,6 +27,8 @@ function App() {
   const [ready, setReady] = useState(false);
   const [matrix, setMatrix] = useState<number[][]>([]);
   const start = useRef({x:0, y:0});
+  const finish = useRef({x:10, y:10});
+  const pen = useRef(3);
   console.log("init");
 
   //did mount
@@ -38,6 +40,8 @@ function App() {
       }
     }
     console.log(matrix);
+    matrix[start.current.y][start.current.x] = 3;
+    matrix[finish.current.y][finish.current.x] = 5;
     setReady(true);
     
   }, []);
@@ -93,10 +97,16 @@ function App() {
  }
 
  const cell_onClick=(new_x:number, new_y:number)=>{
-  updateRenderMatrixCell({x: start.current.x, y: start.current.y}, 0);
+   if(pen.current ==3){
+    updateRenderMatrixCell({x: start.current.x, y: start.current.y}, 0);
+    start.current = {x: new_x, y:new_y};
+   }
+   if(pen.current ==5){
+    updateRenderMatrixCell({x: finish.current.x, y: finish.current.y}, 0);
+    finish.current = {x: new_x, y:new_y};
+   }
+  updateRenderMatrixCell({x: new_x, y: new_y}, pen.current);
   
-  updateRenderMatrixCell({x: new_x, y: new_y}, 3);
-  start.current = {x: new_x, y:new_y};
 
   setNeedUpdate(needupdate => needupdate +1);
  }
@@ -203,6 +213,11 @@ function App() {
     }
   }
 
+  const changePen=(newPen:number)=>{
+    pen.current = newPen;
+    setNeedUpdate(needupdate => needupdate +1);
+  }
+
   
   const gen_row = () => {
       //console.log("gen_row");
@@ -225,6 +240,9 @@ function App() {
         </div>
         {needupdate}
         <Button onClick={findShortestPath}>Dijkstra</Button>
+        
+        <Button onClick={()=>changePen(3)} variant={pen.current == 3 ? 'contained' : "outlined"}>Start</Button>
+        <Button onClick={()=>changePen(5)} variant={pen.current == 5 ? 'contained' : "outlined"}>Finish</Button>
       </div>
 
       

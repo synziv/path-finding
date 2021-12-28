@@ -77,6 +77,9 @@
 .start{
   background-color: black !important;
 }
+.finish{
+  background-color: gray !important;
+}
 
 .path{
   background-color: #FFD639 !important;
