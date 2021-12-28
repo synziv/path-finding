@@ -5,13 +5,15 @@ interface ICellComponentProps{
     x:number,
     y:number, 
     cell:number,
-    child_onClick: Function
+    child_onClick: Function,
+    needUpdate: number
 };
 
 
 
 class CellComponent extends React.Component<ICellComponentProps> {
     shouldComponentUpdate(nextProps:ICellComponentProps) {
+        console.log("should update");
         return nextProps.cell !== this.props.cell ? true: false;
     }
     getClassName=(v:number)=>{
@@ -25,6 +27,7 @@ class CellComponent extends React.Component<ICellComponentProps> {
         return ( 
                 <Paper onClick={()=>this.props.child_onClick(this.props.x, this.props.y)} elevation={3} className={this.getClassName(this.props.cell)}>
                     <span>0</span>
+                    
                 </Paper>
         );
     }

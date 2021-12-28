@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useRef } from 'react';
 import './App.css';
 import Grid from '@mui/material/Grid';
 import { Box, Button, ListItem, Paper } from '@mui/material';
@@ -14,6 +14,9 @@ interface ICoor{
   y: number
 }
 
+let render_matrix:JSX.Element[] =[];
+let arrTest: JSX.Element[]=[];
+
 function App() {
   const height =20;
   const width =30;
@@ -23,9 +26,10 @@ function App() {
   const [rowUpdate, setRowUpdate] = useState(0);
   const [ready, setReady] = useState(false);
   const [matrix, setMatrix] = useState<number[][]>([]);
-  const [start, setStart] = useState<ICoor>({x:0, y:0});
+  const start = useRef({x:0, y:0});
   console.log("init");
 
+  //did mount
   useEffect(() => {
     for (let y = 0; y < height; y++) {
       matrix[y] = [];
@@ -35,7 +39,17 @@ function App() {
     }
     console.log(matrix);
     setReady(true);
+    
   }, []);
+
+  useEffect(() => {
+    if(ready){
+      render_matrix =  gen_row();
+      console.log(render_matrix);
+      setNeedUpdate(needupdate => needupdate +1);
+    }
+
+  }, [ready]);
 
 
   const coorToFlat=(x:number, y:number, width:number)=>{
@@ -47,27 +61,35 @@ function App() {
   distances.fill(4294967295);
   parents.fill(-1);
 
-  const startFlat = coorToFlat(start.x, start.y,width);
+  const startFlat = coorToFlat(start.current.x, start.current.y,width);
   Q.push(startFlat,1);
   distances[startFlat] =0;
 
  }
 
  const updateMatrix=async (x:number, y:number)=>{
-    matrix[y][x] =1;
-    setNeedUpdate(needupdate => needupdate +1);
+    //matrix[y][x] =1;
+    
+    updateRenderMatrixCell({x: x, y: y}, 1);
     //setRowUpdate(y);
+    setNeedUpdate(needupdate => needupdate +1);
     await new Promise(r => setTimeout(r, 0));
  }
-
+ const getIdFromCoor=(coor: ICoor)=>{
+   return (coor.y*width + coor.x);
+ }
+ const updateRenderMatrixCell=(coor:ICoor, newValue: number)=>{
+  matrix[coor.y][coor.x] = newValue;
+  render_matrix[getIdFromCoor(coor)] = <CellComponent key={coorToFlat(coor.x, coor.y, width)} x={coor.x} y={coor.y} cell={matrix[coor.y][coor.x]} child_onClick={cell_onClick} needUpdate={needupdate}/>
+       
+ }
  const cell_onClick=(new_x:number, new_y:number)=>{
-  console.log("clicked");
-  console.log({x: new_x, y: new_y});
-  matrix[start.y][start.x] = 0;
-  //setRowUpdate(start.y);
-  matrix[new_y][new_x] =3;
-  //setRowUpdate(new_y);
-  setStart({x: new_x, y:new_y});
+  updateRenderMatrixCell({x: start.current.x, y: start.current.y}, 0);
+  
+  updateRenderMatrixCell({x: new_x, y: new_y}, 3);
+  start.current = {x: new_x, y:new_y};
+
+  setNeedUpdate(needupdate => needupdate +1);
  }
   
   const dijkstra=async ()=>{
@@ -153,39 +175,31 @@ function App() {
 
     
   }
-  const arrTest: JSX.Element[]=[
-    <Button onClick={dijkstra}>Dijkstra1</Button>,
-    <Button onClick={dijkstra}>Dijkstra2</Button>,
-    <Button onClick={dijkstra}>Dijkstra3</Button>
-  ]
 
+  
   const gen_row = () => {
-    if(ready){
       //console.log("gen_row");
       //console.log(matrix);
+      const arr=[]
       console.log("GEN*******************");
-      return (
-        matrix.map((row, y) =>
-          <div className="grid-parent">
-            {
-              row.map((cell, x) =>
-                <CellComponent key={x} x={x} y={y} cell={cell} child_onClick={cell_onClick} />
-              )
-            }
-          </div>
-
-
-        ))
-    }
+      for(let y =0; y<height; y++){
+        for(let x =0; x<width; x++){
+          arr.push(
+            <CellComponent key={coorToFlat(x, y, width)} x={x} y={y} cell={matrix[y][x]} child_onClick={cell_onClick} needUpdate={needupdate}/>
+          )
+        }
+      }
+      return(arr);
   }
-
-
     return(
-      <div className='grid-container'>
-          {gen_row()}
-        <Button onClick={dijkstra}>Dijkstra</Button>
+      <div>
+        <div className='grid-parent'>
+          {render_matrix}
+        </div>
         {needupdate}
+        <Button onClick={dijkstra}>Dijkstra</Button>
       </div>
+
       
     )
   
