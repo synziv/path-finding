@@ -8,6 +8,7 @@ import internal from 'stream';
 import Heapify from "heapify";
 import CellComponent from './CellComponent';
 import RowComponent from './RowComponent';
+import { AnyCnameRecord } from 'dns';
 
 interface ICoor{
   x: number,
@@ -18,7 +19,7 @@ let render_matrix:JSX.Element[] =[];
 let arrTest: JSX.Element[]=[];
 
 function App() {
-  const height =20;
+  const height =30;
   const width =30;
   //const {Heapify} = require('heapify');
   //const matrix:number[][] = [];
@@ -29,7 +30,8 @@ function App() {
   const start = useRef({x:0, y:0});
   const finish = useRef({x:10, y:10});
   const pen = useRef(3);
-  console.log("init");
+  const mouseDown = useRef(false);
+  //console.log("init");
 
   //did mount
   useEffect(() => {
@@ -121,24 +123,25 @@ function App() {
   const dijkstra=async ()=>{
     //console.log("coucou");
     const Q = new Heapify();
-    let distances = new Uint32Array(30*20);
-    let parents = new Uint32Array(30*20);
+    let distances = new Uint32Array(width*height);
+    let parents = new Uint32Array(width*height);
     initDijkstra(distances, Q, parents);
 
     while(Q.size !=0){
       //console.time('Function #1');
       const v = Q.pop();
       const distance_c = distances[v];
-      
       if(distance_c != Infinity){
         const v_coor = flatToCoor(v);
+
         /*const v_value = matrix[v_coor.y][v_coor.x];
         if(v_value == 6)
          continue;*/
         console.time('updateMatrix');
         await updateMatrix(v_coor.x, v_coor.y, 1);
         console.timeEnd('updateMatrix');
-        
+        if(v_coor.x == finish.current.x && v_coor.y == finish.current.y )
+        break;
         let distance_n;
         //voisin droite
         if( v_coor.x <width-1 && matrix[v_coor.y][v_coor.x+1] !==6){
@@ -209,6 +212,7 @@ function App() {
       current = flatToCoor(chemins[coorToFlat(current.x, current.y, width)]);
     }
     clear_path.unshift(start.current);
+    clear_path.push(finish.current);
 
     for(let i=0; i< clear_path.length; i++){
       await updateMatrix(clear_path[i].x, clear_path[i].y, 4);
@@ -229,15 +233,30 @@ function App() {
       for(let y =0; y<height; y++){
         for(let x =0; x<width; x++){
           arr.push(
-            <CellComponent key={coorToFlat(x, y, width)} x={x} y={y} cell={matrix[y][x]} child_onClick={cell_onClick} needUpdate={needupdate}/>
-          )
+            <div key={coorToFlat(x, y, width)} onMouseEnter={()=>handleMouseEnter(x, y)}>
+              <CellComponent  x={x} y={y} cell={matrix[y][x]} child_onClick={cell_onClick} needUpdate={needupdate}/>
+            </div>
+            )
         }
       }
       return(arr);
   }
+  const handleMouseEnter = (x:number, y:number)=>{
+    if(pen.current == 6 && mouseDown.current){
+      updateRenderMatrixCell({x: x, y: y}, pen.current);
+      setNeedUpdate(needupdate => needupdate +1);
+    }
+  }
+  const handleMouse = (event:any) => {
+    if (event.type === "mousedown") 
+      mouseDown.current = true;
+     else 
+     mouseDown.current = false;
+    
+  }
     return(
       <div>
-        <div className='grid-parent'>
+        <div className='grid-parent' onMouseDown={handleMouse} onMouseUp={handleMouse}>
           {render_matrix}
         </div>
         {needupdate}
@@ -246,9 +265,9 @@ function App() {
         <Button onClick={()=>changePen(3)} variant={pen.current == 3 ? 'contained' : "outlined"}>Start</Button>
         <Button onClick={()=>changePen(5)} variant={pen.current == 5 ? 'contained' : "outlined"}>Finish</Button>
         <Button onClick={()=>changePen(6)} variant={pen.current == 6 ? 'contained' : "outlined"}>Wall</Button>
+        <h2>{mouseDown.current ? "Mouse down" : "Mouse up"}</h2>
       </div> 
     )
-  
 }
 
 export default App;

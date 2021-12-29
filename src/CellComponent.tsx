@@ -13,7 +13,7 @@ interface ICellComponentProps{
 
 class CellComponent extends React.Component<ICellComponentProps> {
     shouldComponentUpdate(nextProps:ICellComponentProps) {
-        console.log("should update");
+        //console.log("should update");
         return nextProps.cell !== this.props.cell ? true: false;
     }
     getClassName=(v:number)=>{
@@ -26,11 +26,10 @@ class CellComponent extends React.Component<ICellComponentProps> {
         else if(v == 6) return 'wall';
     }
     render() {
-        console.log("render"+{x: this.props.x, y: this.props.y});
-        return ( 
-                <Paper onClick={()=>this.props.child_onClick(this.props.x, this.props.y)} elevation={3} className={this.getClassName(this.props.cell)}>
-                    <span>0</span>
-                </Paper>
+        //console.log("render" + { x: this.props.x, y: this.props.y });
+        return (
+            <Paper onClick={() => this.props.child_onClick(this.props.x, this.props.y)} elevation={3} className={"cell "+ this.getClassName(this.props.cell)}>
+            </Paper>
         );
     }
 }

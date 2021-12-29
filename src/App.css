@@ -89,6 +89,11 @@
   background-color: #FFD639 !important;
 }
 
+.cell{
+  height: 25px;
+  width: 25px;
+}
+
 .MuiGrid-root .MuiGrid-container{
   margin-top: 0px;
 }
@@ -103,7 +108,7 @@
 .grid-parent {
   display: grid;
   grid-template-columns: repeat(30, 1fr);
-  grid-column-gap: 03px;
+  grid-column-gap: 01px;
   grid-row-gap: 03px;
   height: 3.5%;
 }
