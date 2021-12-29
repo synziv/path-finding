@@ -74,11 +74,15 @@
   background-color: #FFFFFF !important;
 }
 
-.start{
+.wall{
   background-color: black !important;
 }
+
+.start{
+  outline: red solid;
+}
 .finish{
-  background-color: gray !important;
+  outline: blue solid;
 }
 
 .path{

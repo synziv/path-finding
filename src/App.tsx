@@ -132,14 +132,16 @@ function App() {
       
       if(distance_c != Infinity){
         const v_coor = flatToCoor(v);
+        /*const v_value = matrix[v_coor.y][v_coor.x];
+        if(v_value == 6)
+         continue;*/
         console.time('updateMatrix');
         await updateMatrix(v_coor.x, v_coor.y, 1);
         console.timeEnd('updateMatrix');
         
         let distance_n;
-
         //voisin droite
-        if(v_coor.x <width-1){
+        if( v_coor.x <width-1 && matrix[v_coor.y][v_coor.x+1] !==6){
           
           const coorVoisin = coorToFlat(v_coor.x+1, v_coor.y, width);
           distance_n = distances[coorVoisin];
@@ -150,7 +152,7 @@ function App() {
           }
         }
         //voisin gauche
-        if(v_coor.x >0){
+        if(v_coor.x >0  && matrix[v_coor.y][v_coor.x-1] !==6){
           //console.log("voisin G");
           const coorVoisin = coorToFlat(v_coor.x-1, v_coor.y, width);
           distance_n = distances[coorVoisin];
@@ -163,7 +165,7 @@ function App() {
           }
         }
         //voisin bas
-        if(v_coor.y > 0){
+        if(v_coor.y > 0  && matrix[v_coor.y-1][v_coor.x] !==6){
           //console.log("voisin B");
           const coorVoisin = coorToFlat(v_coor.x, v_coor.y-1, width);
           distance_n = distances[coorVoisin];
@@ -176,7 +178,7 @@ function App() {
           }
         }
         //voisin haut
-        if(v_coor.y <width-1){
+        if(v_coor.y <height-1 && matrix[v_coor.y+1][v_coor.x] !==6){
           //console.log("voisin H");
           const coorVoisin = coorToFlat(v_coor.x, v_coor.y+1, width);
           distance_n = distances[coorVoisin];
@@ -198,7 +200,7 @@ function App() {
   }
 
   const print_path=async (chemins: Uint32Array)=>{
-    let current:ICoor = {x: 25, y:15};
+    let current:ICoor = finish.current;
     let clear_path = [];
     current = flatToCoor(chemins[coorToFlat(current.x, current.y, width)]);
     while(!(current.x == start.current.x && current.y ==start.current.y )){
@@ -243,9 +245,8 @@ function App() {
         
         <Button onClick={()=>changePen(3)} variant={pen.current == 3 ? 'contained' : "outlined"}>Start</Button>
         <Button onClick={()=>changePen(5)} variant={pen.current == 5 ? 'contained' : "outlined"}>Finish</Button>
-      </div>
-
-      
+        <Button onClick={()=>changePen(6)} variant={pen.current == 6 ? 'contained' : "outlined"}>Wall</Button>
+      </div> 
     )
   
 }

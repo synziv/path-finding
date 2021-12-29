@@ -23,6 +23,7 @@ class CellComponent extends React.Component<ICellComponentProps> {
         else if(v == 3) return 'start';
         else if(v == 4) return 'path';
         else if(v == 5) return 'finish';
+        else if(v == 6) return 'wall';
     }
     render() {
         console.log("render"+{x: this.props.x, y: this.props.y});
