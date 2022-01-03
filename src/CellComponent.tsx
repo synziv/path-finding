@@ -28,8 +28,8 @@ class CellComponent extends React.Component<ICellComponentProps> {
     render() {
         //console.log("render" + { x: this.props.x, y: this.props.y });
         return (
-            <Paper onClick={() => this.props.child_onClick(this.props.x, this.props.y)} elevation={3} className={"cell "+ this.getClassName(this.props.cell)}>
-            </Paper>
+            <div onClick={() => this.props.child_onClick(this.props.x, this.props.y)} className={"cell "+ this.getClassName(this.props.cell)}>
+            </div>
         );
     }
 }

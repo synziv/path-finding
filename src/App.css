@@ -79,10 +79,12 @@
 }
 
 .start{
-  outline: red solid;
+  outline: 0.3vw red solid !important;
+  background-color: #FFFFFF !important;
 }
 .finish{
-  outline: blue solid;
+  outline: 0.3vw blue solid !important;
+  background-color: #FFFFFF !important;
 }
 
 .path{
@@ -90,8 +92,11 @@
 }
 
 .cell{
-  height: 25px;
-  width: 25px;
+  height: 2.8vw;
+  width: 2.8vw;
+  max-width: 4.5vh;
+  max-height: 4.5vh;
+  border-radius: 2px;
 }
 
 .MuiGrid-root .MuiGrid-container{
@@ -111,6 +116,7 @@
   grid-column-gap: 01px;
   grid-row-gap: 03px;
   height: 3.5%;
+  background-color: black;
 }
 
 .grid-container{

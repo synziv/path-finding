@@ -19,7 +19,7 @@ let render_matrix:JSX.Element[] =[];
 let arrTest: JSX.Element[]=[];
 
 function App() {
-  const height =30;
+  const height =20;
   const width =30;
   //const {Heapify} = require('heapify');
   //const matrix:number[][] = [];
