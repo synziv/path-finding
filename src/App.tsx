@@ -1,7 +1,7 @@
 import React, { memo, useRef } from 'react';
 import './App.css';
 import Grid from '@mui/material/Grid';
-import { Box, Button, ListItem, Paper } from '@mui/material';
+import { Box, Button, Card, CardContent, ListItem, Paper } from '@mui/material';
 import { useEffect } from 'react';
 import { useState } from 'react';
 import internal from 'stream';
@@ -9,6 +9,7 @@ import Heapify from "heapify";
 import CellComponent from './CellComponent';
 import RowComponent from './RowComponent';
 import { AnyCnameRecord } from 'dns';
+import Draggable from 'react-draggable';
 
 interface ICoor{
   x: number,
@@ -19,31 +20,24 @@ let render_matrix:JSX.Element[] =[];
 let arrTest: JSX.Element[]=[];
 
 function App() {
-  const height =20;
-  const width =30;
+  const height =23;
+  const width =48;
   //const {Heapify} = require('heapify');
   //const matrix:number[][] = [];
   const [needupdate, setNeedUpdate] = useState(0);
   const [rowUpdate, setRowUpdate] = useState(0);
   const [ready, setReady] = useState(false);
   const [matrix, setMatrix] = useState<number[][]>([]);
-  const start = useRef({x:0, y:0});
-  const finish = useRef({x:10, y:10});
-  const pen = useRef(3);
+  const start = useRef({x:10, y:10});
+  const finish = useRef({x:40, y:10});
+  const pen = useRef(6);
   const mouseDown = useRef(false);
+  const currentCell = useRef({x:0, y:0});
   //console.log("init");
 
   //did mount
   useEffect(() => {
-    for (let y = 0; y < height; y++) {
-      matrix[y] = [];
-      for (let x = 0; x < width; x++) {
-        matrix[y][x] = 0;
-      }
-    }
-    console.log(matrix);
-    matrix[start.current.y][start.current.x] = 3;
-    matrix[finish.current.y][finish.current.x] = 5;
+    initMatrix();
     setReady(true);
     
   }, []);
@@ -57,7 +51,18 @@ function App() {
 
   }, [ready]);
 
-
+  const initMatrix=()=>{
+    console.log("width: "+width);
+    for (let y = 0; y < height; y++) {
+      matrix[y] = [];
+      for (let x = 0; x < width; x++) {
+        matrix[y][x] = 0;
+      }
+    }
+    console.log(matrix);
+    matrix[start.current.y][start.current.x] = 3;
+    matrix[finish.current.y][finish.current.x] = 5;
+  }
   const coorToFlat=(x:number, y:number, width:number)=>{
     return x + width * y;
   }
@@ -99,6 +104,7 @@ function App() {
  }
 
  const cell_onClick=(new_x:number, new_y:number)=>{
+   console.log({x: new_x, y:new_y});
    if(pen.current ==3){
     updateRenderMatrixCell({x: start.current.x, y: start.current.y}, 0);
     start.current = {x: new_x, y:new_y};
@@ -207,7 +213,6 @@ function App() {
     let clear_path = [];
     current = flatToCoor(chemins[coorToFlat(current.x, current.y, width)]);
     while(!(current.x == start.current.x && current.y ==start.current.y )){
-      console.log({x: current.x, y: current.y});
       clear_path.unshift(current);
       current = flatToCoor(chemins[coorToFlat(current.x, current.y, width)]);
     }
@@ -233,7 +238,7 @@ function App() {
       for(let y =0; y<height; y++){
         for(let x =0; x<width; x++){
           arr.push(
-            <div key={coorToFlat(x, y, width)} onMouseEnter={()=>handleMouseEnter(x, y)}>
+            <div key={coorToFlat(x, y, width)} onMouseOver={()=>handleMouseEnter(x, y)}>
               <CellComponent  x={x} y={y} cell={matrix[y][x]} child_onClick={cell_onClick} needUpdate={needupdate}/>
             </div>
             )
@@ -242,30 +247,57 @@ function App() {
       return(arr);
   }
   const handleMouseEnter = (x:number, y:number)=>{
-    if(pen.current == 6 && mouseDown.current){
-      updateRenderMatrixCell({x: x, y: y}, pen.current);
-      setNeedUpdate(needupdate => needupdate +1);
+    if(pen.current == 6){
+      if(mouseDown.current){
+        updateRenderMatrixCell({x: x, y: y}, pen.current);
+        setNeedUpdate(needupdate => needupdate +1);
+      }
+
+      currentCell.current = {x:x, y:y};
     }
   }
   const handleMouse = (event:any) => {
-    if (event.type === "mousedown") 
+    if (event.type === "mousedown" && pen.current == 6) {
+      console.log(currentCell.current);
       mouseDown.current = true;
+      updateRenderMatrixCell({x: currentCell.current.x, y: currentCell.current.y}, pen.current);
+      setNeedUpdate(needupdate => needupdate +1);
+    }
+      
      else 
      mouseDown.current = false;
     
   }
-    return(
-      <div>
-        <div className='grid-parent' onMouseDown={handleMouse} onMouseUp={handleMouse}>
-          {render_matrix}
-        </div>
-        {needupdate}
-        <Button onClick={findShortestPath}>Dijkstra</Button>
-        
-        <Button onClick={()=>changePen(3)} variant={pen.current == 3 ? 'contained' : "outlined"}>Start</Button>
-        <Button onClick={()=>changePen(5)} variant={pen.current == 5 ? 'contained' : "outlined"}>Finish</Button>
-        <Button onClick={()=>changePen(6)} variant={pen.current == 6 ? 'contained' : "outlined"}>Wall</Button>
-        <h2>{mouseDown.current ? "Mouse down" : "Mouse up"}</h2>
+  const clearMatrix =()=>{
+    initMatrix();
+    render_matrix =  gen_row();
+    setNeedUpdate(needupdate => needupdate +1);
+  }
+  //grid-template-columns: repeat(30, 1fr);
+  return (
+    <div>
+      <div className='grid-parent' onMouseDown={handleMouse} onMouseUp={handleMouse} style={{ gridTemplateColumns: `repeat(${width}, 1fr)` }}>
+        {render_matrix}
+      </div>
+      <Draggable >
+        <Card className='btn-menu'>
+          <CardContent>
+            <Button className='btn' onClick={() => changePen(3)} variant={pen.current == 3 ? 'contained' : "outlined"}>Origin</Button>
+          </CardContent>
+          <CardContent>
+            <Button className='btn' onClick={() => changePen(5)} variant={pen.current == 5 ? 'contained' : "outlined"}>Finish</Button>
+          </CardContent>
+          <CardContent>
+            <Button className='btn' onClick={() => changePen(6)} variant={pen.current == 6 ? 'contained' : "outlined"}>Wall</Button>
+          </CardContent>
+          <CardContent>
+            <Button className='btn' onClick={clearMatrix} color="error" variant="outlined">Clear</Button>
+          </CardContent>
+          <CardContent>
+            <Button className='btn' variant="outlined" onClick={findShortestPath}>Dijkstra</Button>
+          </CardContent>
+        </Card>
+      </Draggable>
       </div> 
     )
 }

@@ -25,10 +25,15 @@ class CellComponent extends React.Component<ICellComponentProps> {
         else if(v == 5) return 'finish';
         else if(v == 6) return 'wall';
     }
+    getValue= (v:number)=>{
+        if(v == 3) return 'O';
+        else if(v == 5) return 'F';
+    }
     render() {
         //console.log("render" + { x: this.props.x, y: this.props.y });
         return (
             <div onClick={() => this.props.child_onClick(this.props.x, this.props.y)} className={"cell "+ this.getClassName(this.props.cell)}>
+                {this.getValue(this.props.cell)}
             </div>
         );
     }
