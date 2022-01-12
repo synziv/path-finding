@@ -10,6 +10,7 @@ import CellComponent from './CellComponent';
 import RowComponent from './RowComponent';
 import { AnyCnameRecord } from 'dns';
 import Draggable from 'react-draggable';
+import FirstUse from './FirstUse';
 
 interface ICoor{
   x: number,
@@ -99,24 +100,30 @@ function App() {
 
  const updateRenderMatrixCell=(coor:ICoor, newValue: number)=>{
   matrix[coor.y][coor.x] = newValue;
-  render_matrix[getIdFromCoor(coor)] = <CellComponent key={coorToFlat(coor.x, coor.y, width)} x={coor.x} y={coor.y} cell={matrix[coor.y][coor.x]} child_onClick={cell_onClick} needUpdate={needupdate}/>
-       
+  render_matrix[getIdFromCoor(coor)] = (
+    <div key={coorToFlat(coor.x, coor.y, width)} onMouseOver={()=>handleMouseEnter(coor.x, coor.y)}>
+      <CellComponent  x={coor.x} y={coor.y} cell={matrix[coor.y][coor.x]} child_onClick={cell_onClick} needUpdate={needupdate}/>
+  </div>
+  )
  }
 
  const cell_onClick=(new_x:number, new_y:number)=>{
-   console.log({x: new_x, y:new_y});
-   if(pen.current ==3){
-    updateRenderMatrixCell({x: start.current.x, y: start.current.y}, 0);
-    start.current = {x: new_x, y:new_y};
-   }
-   if(pen.current ==5){
-    updateRenderMatrixCell({x: finish.current.x, y: finish.current.y}, 0);
-    finish.current = {x: new_x, y:new_y};
-   }
-  updateRenderMatrixCell({x: new_x, y: new_y}, pen.current);
-  
+   if (pen.current != 6) {
+     console.log({ x: new_x, y: new_y });
+     if (pen.current == 3) {
+       updateRenderMatrixCell({ x: start.current.x, y: start.current.y }, 0);
+       start.current = { x: new_x, y: new_y };
+     }
+     if (pen.current == 5) {
+       updateRenderMatrixCell({ x: finish.current.x, y: finish.current.y }, 0);
+       finish.current = { x: new_x, y: new_y };
+     }
+     updateRenderMatrixCell({ x: new_x, y: new_y }, pen.current);
 
-  setNeedUpdate(needupdate => needupdate +1);
+
+     setNeedUpdate(needupdate => needupdate + 1);
+   }
+
  }
 
 
@@ -254,13 +261,15 @@ function App() {
       }
 
       currentCell.current = {x:x, y:y};
+      console.log(currentCell.current);
     }
   }
   const handleMouse = (event:any) => {
     if (event.type === "mousedown" && pen.current == 6) {
       console.log(currentCell.current);
       mouseDown.current = true;
-      updateRenderMatrixCell({x: currentCell.current.x, y: currentCell.current.y}, pen.current);
+      const newValue = matrix[currentCell.current.y][currentCell.current.x] == 6 ? 0 : 6;
+      updateRenderMatrixCell({x: currentCell.current.x, y: currentCell.current.y}, newValue);
       setNeedUpdate(needupdate => needupdate +1);
     }
       
@@ -276,6 +285,7 @@ function App() {
   //grid-template-columns: repeat(30, 1fr);
   return (
     <div>
+      <FirstUse></FirstUse>
       <div className='grid-parent' onMouseDown={handleMouse} onMouseUp={handleMouse} style={{ gridTemplateColumns: `repeat(${width}, 1fr)` }}>
         {render_matrix}
       </div>
@@ -294,7 +304,7 @@ function App() {
             <Button className='btn' onClick={clearMatrix} color="error" variant="outlined">Clear</Button>
           </CardContent>
           <CardContent>
-            <Button className='btn' variant="outlined" onClick={findShortestPath}>Dijkstra</Button>
+            <Button className='btn' variant="outlined" onClick={findShortestPath}>STart!</Button>
           </CardContent>
         </Card>
       </Draggable>
