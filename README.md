@@ -1,3 +1,7 @@
+# Live demo
+Follow this link to see a demo in your browser
+https://path-finding-5ebb7.web.app/
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
